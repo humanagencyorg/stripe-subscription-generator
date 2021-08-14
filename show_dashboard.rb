@@ -7,6 +7,7 @@ require "sinatra/base"
 
 Stripe.api_key = ENV["STRIPE_SECRET_KEY"]
 Stripe.api_version = "2019-09-09"
+APP_HOST = ENV.fetch("APP_HOST")
 STRIPE_CUSTOMER_ID = ENV["STRIPE_CUSTOMER_ID"]
 STRIPE_SMS_PRODUCT_ID = ENV["STRIPE_SMS_PRODUCT_ID"]
 STRIPE_NUMBER_PRODUCT_ID = ENV["STRIPE_NUMBER_PRODUCT_ID"]
@@ -67,7 +68,7 @@ class StripeDashboardServer < Sinatra::Base
 
     dash_link = Stripe::BillingPortal::Session.create(
       customer: customer_id,
-      return_url: "http://localhost:9292",
+      return_url: APP_HOST,
     )
     redirect dash_link.url
   end
@@ -127,8 +128,8 @@ class StripeDashboardServer < Sinatra::Base
 
     session = Stripe::Checkout::Session.create(
       customer: settings.stripe_customer_id,
-      success_url: "http://localhost:9292/",
-      cancel_url: "http://localhost:9292/",
+      success_url: APP_HOST,
+      cancel_url: APP_HOST,
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [

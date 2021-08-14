@@ -1,21 +1,9 @@
-require "bundler/inline"
-gemfile do
-  gem "puma"
-  gem "activesupport"
-  gem "dotenv"
-  gem "pry"                  # command line debugger
-  gem "pry-byebug"           # provides next, continue, step for pry
-  gem "pry-rails"            # automatically use pry on the console
-  gem "stripe"
-  gem "sinatra"
-end
-
+require "stripe"
 require "dotenv"
 require "pry"
 require "active_support"
 require "active_support/core_ext"
 require "sinatra/base"
-Dotenv.load(".env")
 
 Stripe.api_key = ENV["STRIPE_SECRET_KEY"]
 Stripe.api_version = "2019-09-09"

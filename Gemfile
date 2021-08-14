@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem "activesupport"
+gem "dotenv"
+gem "pry"
+gem "pry-byebug"
+gem "pry-rails"
+gem "puma"
+gem "sinatra"
+gem "stripe"

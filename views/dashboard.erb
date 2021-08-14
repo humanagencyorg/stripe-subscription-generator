@@ -1,0 +1,84 @@
+<html>
+
+  <body>
+    <h1>Billing</h1>
+
+    <form method="POST" action="/customer-portal-link">
+      <label for="customer_id">Customer ID</label>
+      <input type="text" name="customer_id" value="<%= settings.stripe_customer_id %>">
+      <button type="submit">Manage billing</button>
+    </form>
+
+    <h1>Subscriptions</h1>
+
+    <form action="/create-checkout-session" method="POST">
+      <label for="interval">Subscription Interval</label>
+      <select name="interval">
+        <option value="month" selected>Month</option>
+        <option value="day">Day</option>
+      </select>
+      <br>
+      <label for="text_price">Text Price</label>
+      <input type="number" name="text_price" value="5">
+      <br>
+      <label for="phone_number_price">Phone Number Price</label>
+      <input type="number" name="phone_number_price" value="100">
+      <br>
+      <button type="submit">Checkout</button>
+    </form>
+
+    <form method="POST" action="/start-a-subscription">
+      <label for="interval">Subscription Interval</label>
+      <select name="interval">
+        <option value="month" selected>Month</option>
+        <option value="day">Day</option>
+      </select>
+      <br>
+      <label for="text_price">Text Price</label>
+      <input type="number" name="text_price" value="5">
+      <br>
+      <label for="phone_number_price">Phone Number Price</label>
+      <input type="number" name="phone_number_price" value="100">
+      <br>
+      <button type="submit">Create a quick subscription</button>
+    </form>
+
+    <h1>Active Subscriptions</h1>
+    <ul>
+    <% @subscriptions.present? && @subscriptions.each do |subscription| %>
+      <li>
+        <h2>Subscription: <%= subscription.id %></h3>
+        <i>Created At</i>: <%= Time.at(subscription.created) %><br>
+        <i>Current Start</i>: <%= Time.at(subscription.current_period_start) %><br>
+        <i>Current End</i>: <%= Time.at(subscription.current_period_start) %><br>
+        <% subscription.items.each do |item| %>
+          <h4><i>Subscription Item</i>: <%= item.id %><br></h4>
+          <i>Subscription Description</i>: <%= item.plan.nickname %><br>
+          <i>Subscription Interval</i>: <%= item.price.recurring.interval %><br>
+          <i>Subscription Amount</i>: <%= item.price.unit_amount %><br>
+          <i>Usage</i>: <br>
+          <ul>
+            <% @usage_records = Stripe::SubscriptionItem.list_usage_record_summaries(item.id) %>
+            <% @usage_records.each do |record| %>
+              <li><b><%= Time.at(record.period.start || Time.current) %></b> - <i>Total Usage</i>: <%= record.total_usage %></li>
+            <% end %>
+          </ul>
+
+          <br>
+          <form method="POST" action="/send-a-text">
+            <label for="<%= item.id %>_event_date">Usage Date</label>
+            <input type="date" name="event_date" id="<%= item.id %>_event_date"><br>
+
+            <label for="<%= item.id %>_amount">Number of Events</label>
+            <input type="number" name="amount" id="<%= item.id %>_amount"><br>
+
+            <input type="hidden" name="item_id" value="<%= item.id %>">
+            <button type="submit">Add Usage</button>
+          </form>
+        <% end %>
+      </li>
+      <hr>
+    <% end %>
+    </ul>
+  </body>
+</html>

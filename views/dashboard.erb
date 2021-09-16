@@ -18,11 +18,23 @@
         <option value="day">Day</option>
       </select>
       <br>
+      <label for="license_price">License Price</label>
+      <input type="number" name="license_price" value="10000">
+      <br>
       <label for="text_price">Text Price</label>
-      <input type="number" name="text_price" value="5">
+      <input type="number" name="text_price" value="8">
+      <br>
+      <label for="mms_price">MMS Price</label>
+      <input type="number" name="mms_price" value="10">
       <br>
       <label for="phone_number_price">Phone Number Price</label>
       <input type="number" name="phone_number_price" value="100">
+      <br>
+      <label for="block_view_price">Block View Price</label>
+      <input type="number" name="block_view_price" value="5">
+      <br>
+      <label for="block_view_free">Free Block View</label>
+      <input type="number" name="block_view_free" value="500">
       <br>
       <button type="submit">Checkout</button>
     </form>
@@ -34,11 +46,26 @@
         <option value="day">Day</option>
       </select>
       <br>
+      <label for="license_price">License Price</label>
+      <input type="number" name="license_price" value="10000">
+      <br>
       <label for="text_price">Text Price</label>
       <input type="number" name="text_price" value="5">
       <br>
+      <label for="mms_price">MMS Price</label>
+      <input type="number" name="mms_price" value="10">
+      <br>
       <label for="phone_number_price">Phone Number Price</label>
       <input type="number" name="phone_number_price" value="100">
+      <br>
+      <label for="customer_id">Customer ID</label>
+      <input type="string" name="customer_id" value="<%= settings.stripe_customer_id %>">
+      <br>
+      <label for="block_view_price">Block View Price</label>
+      <input type="number" name="block_view_price" value="5">
+      <br>
+      <label for="block_view_free">Free Block View</label>
+      <input type="number" name="block_view_free" value="500">
       <br>
       <button type="submit">Create a quick subscription</button>
     </form>

@@ -255,6 +255,53 @@ class StripeDashboardServer < Sinatra::Base
   post "/downgrade" do
     subscription_item_id = params["item_id"]
     subscription_item = Stripe::SubscriptionItem.retrieve(subscription_item_id)
+    subscription = Stripe::Subscription.retrieve(subscription_item.subscription)
+    # stripe says that we have to make two separate API calls
+    # https://stripe.com/docs/api/subscription_schedules/create#create_subscription_schedule-from_subscription
+    require 'pry'; binding.pry
+    updated_prices = subscription.items.map do |item|
+      orig_price = item.price
+      if orig_price.unit_amount.present?
+        new_price = create_price(
+          product_id: orig_price.product,
+          unit_amount: (orig_price.unit_amount * 0.5).to_i,
+          interval: orig_price.recurring.interval,
+          nickname: orig_price.nickname,
+          usage_type: orig_price.recurring.usage_type,
+        )
+        {
+          id: item.id,
+          price: new_price.id,
+        }
+      else
+        {
+          id: item.id,
+          price: orig_price.id,
+        }
+      end
+    end
+    schedule = Stripe::SubscriptionSchedule.create(
+      from_subscription: subscription.id,
+    )
+    phase_1 = schedule.phases.first
+    items = phase_1.plans.map do |item|
+      {price: item.price, quantity: item.quantity}
+    end
+    orig_phases = {
+       start_date: phase_1.start_date,
+       end_date: phase_1.end_date,
+       items: items,
+    }
+    phases = orig_phase.merge(
+      items: updated_prices,
+    )
+    Stripe::SubscriptionSchedule.update(
+      schedule,
+      {
+        phases: orig_phases,
+      }
+    )
+
     redirect "/"
   end
 

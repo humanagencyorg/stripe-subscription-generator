@@ -246,9 +246,51 @@ class StripeDashboardServer < Sinatra::Base
       item_id,
       quantity: amount,
       timestamp: event_date.to_i,
-      action: "subscription",
+      action: "set",
     )
     puts "created usage record #{usage_record.id}"
+    redirect "/"
+  end
+
+  post "/downgrade" do
+    subscription_item_id = params["item_id"]
+    subscription_item = Stripe::SubscriptionItem.retrieve(subscription_item_id)
+    redirect "/"
+  end
+
+  post "/upgrade" do
+    subscription_item_id = params["item_id"]
+    subscription_item = Stripe::SubscriptionItem.retrieve(subscription_item_id)
+    subscription = Stripe::Subscription.retrieve(subscription_item.subscription)
+    updated_prices = subscription.items.map do |item|
+      orig_price = item.price
+      if orig_price.unit_amount.present?
+        new_price = create_price(
+          product_id: orig_price.product,
+          unit_amount: orig_price.unit_amount * 2,
+          interval: orig_price.recurring.interval,
+          nickname: orig_price.nickname,
+          usage_type: orig_price.recurring.usage_type,
+        )
+        {
+          id: item.id,
+          price: new_price.id,
+        }
+      else
+        {
+          id: item.id,
+          price: orig_price.id,
+        }
+      end
+    end
+    Stripe::Subscription.update(
+      subscription.id,
+      {
+        cancel_at_period_end: false,
+        proration_behavior: "none",
+        items: updated_prices,
+      }
+    )
     redirect "/"
   end
 
